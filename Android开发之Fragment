@@ -1,0 +1,76 @@
+---
+title: Android开发之Fragment
+tags: 
+grammar_cjkRuby: true
+---
+### Fragment的产生与介绍
+- #### 产生
+ 	Fragment的产生是为了解决平板与手机的不兼容问题
+ - #### 介绍
+	可以把Fragment当做是Activity界面的一个组成部分，甚至Activity界面可以由不同的Fragment组成，Fragment拥有自己的生命周期和接收、处理用户的时间。可以动态的添加、移除和替换某个Fragment。
+
+### Fragment的生命周期
+![Fragment的生命周期][1]
+
+
+### Fragment的简单实用
+那么最简单就是把两个Fragment放到一个Activity里面了，下面我们来尝试一下，首先定义一个Fragment，定义方法为点击java文件的包名，右键new，点击Fragment，选择BlankFragment，然后看到下面的内容：
+![enter description here][2]
+这个时候，千万不要点在下面那两个选项下面打对勾，要不然生成一堆你看着都烦的东西，但是让它生成XML文件还是必要的，下面是代码：
+
+``` stylus
+public class BlankFragment extends Fragment {
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_blank, container, false);
+    }
+    
+}
+
+```
+XML里面的文件由于也是自动生成的，我就不贴代码了。然后再建立一个一样的Fragment
+
+``` stylus
+public class ContentFragment extends Fragment {
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_content, container, false);
+    }
+}
+
+```
+同样会自动生成XML文件
+
+最后，就要在MainActivity的XML文件里面写一下：
+
+``` stylus
+ <fragment
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_weight="1"
+        android:name="com.example.hp.learnfragment.BlankFragment"
+        android:id="@+id/fragment"
+        android:layout_gravity="center" />
+    
+   <fragment
+       android:layout_width="match_parent"
+       android:layout_height="1dp"
+       android:name="com.example.hp.learnfragment.ContentFragment"
+       android:id="@+id/id_contentFragment"
+       android:layout_weight="1"
+       />
+```
+这里把Fragment作为Activity里面的一个元素，和Button，Textview一样看待，值得注意的是这里的name,它用的其实就是要包含的Fragment的包名+类名。
+然后我们就可以运行了（当然很有可能过程中的某一些细节没有说太清楚）：
+![enter description here][3]
+下面是后来又加了一个作为练手：
+![enter description here][4]
+
+
+  [1]: ./images/20140719225005356.png "20140719225005356.png"
+  [2]: ./images/2016-07-14_152416.png "2016-07-14_152416.png"
+  [3]: ./images/2016-07-14_153837.png "2016-07-14_153837.png"
+  [4]: ./images/2016-07-14_154036.png "2016-07-14_154036.png"
