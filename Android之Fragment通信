@@ -1,0 +1,82 @@
+---
+title: Android之Fragment通信 
+tags: 
+grammar_cjkRuby: true
+---
+我们在第一个的基础上，稍加修改，可以达到下面的效果：
+![enter description here][1]
+
+
+  [1]: ./images/2016-07-15_092233.png "2016-07-15_092233.png"
+  我们点击任何一个按钮，就会在相应的的Fragment1里面得到按钮上的文字。下面是MainActivity里面XML的代码：
+  
+
+``` stylus
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/main_layout"
+    android:layout_height="match_parent"
+    android:baselineAligned="false" >
+    <fragment
+        android:layout_width="1dip"
+        android:layout_height="match_parent"
+        android:id="@+id/title_frag"
+        android:layout_weight="1"
+        android:name="com.example.hp.fragmentlearn.title"
+        />
+    <fragment
+        android:layout_width="1dip"
+        android:layout_height="match_parent"
+        android:id="@+id/frag_content"
+        android:layout_weight="1"
+        android:name="com.example.hp.fragmentlearn.contentFragment"/>
+</LinearLayout>
+```
+与以上所不同的是ContentFragment里面的代码
+
+``` stylus
+public class contentFragment extends Fragment implements View.OnClickListener {
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_content, container, false);
+    }
+
+     TextView tv;
+    Button button,button2,button3;
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        button= (Button) getActivity().findViewById(R.id.button);
+        button2= (Button) getActivity().findViewById(R.id.button2);
+        button3= (Button) getActivity().findViewById(R.id.button3);
+        tv=(TextView) getActivity().findViewById(R.id.texttitle);
+
+        button.setOnClickListener(this);
+        button2.setOnClickListener(this);
+        button3.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.button:
+                tv.setText(button.getText().toString());
+                break;
+            case R.id.button2:
+                tv.setText(button2.getText().toString());
+                break;
+            case R.id.button3:
+                tv.setText(button3.getText().toString());
+
+        }
+    }
+}
+
+```
+这里每点击contenFragment里面的按钮，就会在title（Fragment）里面显示按钮上的字符串，我们注意到，在contentFragment里面获取title中的TextView其实和获取自己里面的标签方式是一样的。
+
+
+
