@@ -1,0 +1,79 @@
+---
+title: Android之动态加载Fragment
+tags: 
+grammar_cjkRuby: true
+---
+上面的文章当中介绍了一种嵌入Fragment的方法，即把Fragment当做是Activity的一个组件，然后添加这个组件并赋予一定的属性即可，下面我们讲怎么来动态加载Fragment。
+首先创建两个继承自Fragment的类，并写出对应的XML文件。
+Fragment部分的代码：
+
+``` stylus
+
+public class title extends Fragment {
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_title, container, false);
+    }
+
+}
+```
+
+然后在XML文件里面写：
+
+``` stylus
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#00ff00" >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="This is fragment 1"
+        android:textColor="#000000"
+        android:textSize="25sp" />
+
+</LinearLayout>
+```
+这个里面加了个背景色，感觉好了那么一点，我的话很少会加的。
+然后，另一个Fragment跟这个几乎一模一样，就是背景色不太一样，就不再贴重复的代码了。
+下面就是主要的MainActivity了，先看它的XML文件：
+
+``` stylus
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/main_layout"
+    android:layout_height="match_parent"
+    android:baselineAligned="false" >
+</LinearLayout>
+```
+我们看到这里非常简洁，没有了Fragment的标签。因为我们不是要静态加载它的，所以不会直接把它写死。（其实我还想到一个方法，就是说既然Fragment是一个元素，我们可以先写死，然后在主函数里面去调用它或者改变它，当然，未经实践，纯属猜测）。
+然后是MainActivity：
+``` scala
+public class MainActivity extends Activity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Display display=getWindowManager().getDefaultDisplay();
+        if (display.getWidth()>display.getHeight()){
+            title demo=new title();
+            getFragmentManager().beginTransaction().replace(R.id.main_layout,demo).commit();
+        }else {
+            contentFragment content=new contentFragment();
+            getFragmentManager().beginTransaction().replace(R.id.main_layout,content).commit();
+        }
+    }
+}
+```
+这里展示了动态加载Fragment的过程：
+1.获取到FragmentManager，在Activity中可以直接通过getFragmentManager得到。
+2.开启一个事务，通过调用beginTransaction方法开启。
+3.向容器内加入Fragment，一般使用replace方法实现，需要传入容器的id和Fragment的实例。
+4.提交事务，调用commit方法提交。
+
+
+
