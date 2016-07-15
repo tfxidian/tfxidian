@@ -1,0 +1,213 @@
+---
+title: 最常用和最难用的控件ListView 
+tags: 
+grammar_cjkRuby: true
+---
+先认识一下ListView也就是列表，ListView有三个元素：
+列表的显示需要三个元素：
+
+1．ListVeiw 用来展示列表的View。
+
+2．适配器 用来把数据映射到ListView上的中介。
+
+3．数据 具体的将被映射的字符串，图片，或者基本组件。
+
+根据列表的适配器类型，列表分为三种，ArrayAdapter，SimpleAdapter和SimpleCursorAdapter
+其中以ArrayAdapter最为简单，只能展示一行字。SimpleAdapter有最好的扩充性，可以自定义出各种效果。SimpleCursorAdapter可以认为是SimpleAdapter对数据库的简单结合，可以方面的把数据库的内容以列表的形式展示出来。
+ 我们从最简单的ListView开始：
+ 
+
+``` stylus
+/**
+ * @author allin
+ *
+ */
+public class MyListView extends Activity {
+ 
+    private ListView listView;
+    //private List<String> data = new ArrayList<String>();
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+         
+        listView = new ListView(this);
+        listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_expandable_list_item_1,getData()));
+        setContentView(listView);
+    }
+     
+     
+     
+    private List<String> getData(){
+         
+        List<String> data = new ArrayList<String>();
+        data.add("测试数据1");
+        data.add("测试数据2");
+        data.add("测试数据3");
+        data.add("测试数据4");
+         
+        return data;
+    }
+}
+```
+
+上面代码使用了ArrayAdapter(Context context, int textViewResourceId, List objects)来装配数据，要装配这些数据就需要一个连接ListView视图对象和数组数据的适配器来两者的适配工作，ArrayAdapter的构造需要三个参数，依次为this,布局文件（注意这里的布局文件描述的是列表的每一行的布局，android.R.layout.simple_list_item_1是系统定义好的布局文件只显示一行文字，数据源(一个List集合)。同时用setAdapter（）完成适配的最后工作。
+这里会显示上面要求的几个测试数据信息。
+
+下面再做一个例子，以下是XML部分，其实不用写什么，只需要把ListView标签写进去，然后加上一个ID就行了，处理的部分在下面：
+``` stylus
+public class MainActivity extends AppCompatActivity {
+    private String[] data={"apple","banana","orange","watermelon","cherry","Pear", "Grape", "Pineapple", "Strawberry", "Cherry", "Mango"};
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        ArrayAdapter<String> adapter=new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_list_item_1,data);
+        ListView listView= (ListView) findViewById(R.id.list_View);
+        listView.setAdapter(adapter);
+    }
+}
+
+```
+然后我们在MainActivity里面写入以下代码：
+
+``` scala
+public class MainActivity extends AppCompatActivity {
+    private String[] data={"apple","banana","orange","watermelon","cherry","Pear", "Grape", "Pineapple", "Strawberry", "Cherry", "Mango"};
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        ArrayAdapter adapter=new ArrayAdapter(MainActivity.this,android.R.layout.simple_list_item_1,data);
+        ListView listView= (ListView) findViewById(R.id.list_View);
+        listView.setAdapter(adapter);
+    }
+}
+```
+我们运行以下看结果:
+![enter description here][1]
+当然我们可以看到，第二个例跟第一个例子是差不多的，第一个例子是在网上找到的，第二个例子来自第一行代码里面的。
+下面继续来探讨，我们对第二个例子来进行改进我们尝试一下给每一个水果名字加上一幅配图。（哦我这里不是水果，只是几个象征性的图标而已啦）
+下面是运行结果的一个小录像
+%[enter description here][2]
+
+为了防止视频挂掉，我还是来张图吧。
+![enter description here][3]
+好，下面来讲这个过程，其实看这一部分觉得确实是挺难的，主要是适配器什么的啊感觉莫名其妙，不是很理解，（我决定下一篇搞一下适配器方面的东西，要不然太纠结了）所以对整个过程也难以有一个整体上的把握。下面我试着梳理以下。
+
+首先创建一个Fruit类，定义水果的名字和ID
+
+``` stylus
+public class Fruit {
+    private  String name;
+    private  int ImgId;
+
+    public Fruit(String name,int ImgId) {
+        this.name=name;
+        this.ImgId=ImgId;
+    }
+
+    public int getImgId() {
+        return ImgId;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+```
+然后创建一个FruitAdapter,继承自Adapter
+
+
+
+``` stylus
+public class FruitAdapter extends ArrayAdapter<Fruit> {
+    private int resourceId;
+
+    public FruitAdapter(Context context, int resource, List<Fruit> objects) {
+        super(context, resource, objects);
+        resourceId=resource;
+    }
+    
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+
+        Fruit fruit=getItem(position);
+        View view= LayoutInflater.from(getContext()).inflate(resourceId,null);
+        ImageView imgview= (ImageView) view.findViewById(R.id.fruitImg);
+        TextView tv=(TextView)view.findViewById(R.id.tv);
+        imgview.setImageResource(fruit.getImgId());
+        tv.setText(fruit.getName());
+        return view;
+    }
+}
+```
+这一部分我就不太理解了，首先public View getView 这里是什么意思呢，要返回一个View，那么这个View是不是Textview的父类呢？
+![api][4]
+这里看到，很显然，就是的。那么为什么不直接返回TextView呢？、事实上，LayoutInflater.from(getContext()).inflate(resourceId,null);这句话的返回类型就是View，如果要在前面写TextView view=LayoutInflater.from(getContext()).inflate(resourceId,null);会报错需要强制类型转换为TextView才行，所以直接返回View是一种不错的方法。当然这里只是我的片面理解了。
+接下来是 Fruit fruit=getItem(position);这个这里的position是从哪里来的呢？它是来自于getItem（）的返回值，那么我们就需要看一下getItem（postion）的文档信息以便于更好的理解了：
+
+![getItem][6]
+下面是MainActivity部分：
+
+public class MainActivity extends AppCompatActivity {
+    private List fruitsList=new ArrayList<>();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        initFruits();
+        FruitAdapter adapter=new FruitAdapter(MainActivity.this,R.layout.fruit_item,fruitsList);
+        ListView listView= (ListView) findViewById(R.id.list_View);
+        listView.setAdapter(adapter);
+    }
+
+    private void initFruits(){
+        Fruit apple=new Fruit("apple",R.mipmap.img1);
+        fruitsList.add(apple);
+        Fruit banana = new Fruit("Banana", R.mipmap.img2);
+        fruitsList.add(banana);
+        Fruit orange = new Fruit("Orange", R.mipmap.img3);
+        fruitsList.add(orange);
+        Fruit watermelon = new Fruit("Watermelon", R.mipmap.img5);
+        fruitsList.add(watermelon);
+        Fruit pear = new Fruit("Pear", R.mipmap.img4);
+        fruitsList.add(pear);
+        Fruit grape = new Fruit("Grape", R.mipmap.img1);
+        fruitsList.add(grape);
+        Fruit pineapple = new Fruit("Pineapple", R.mipmap.img2);
+        fruitsList.add(pineapple);
+        Fruit strawberry = new Fruit("Strawberry", R.mipmap.img3);
+        fruitsList.add(strawberry);
+        Fruit cherry = new Fruit("Cherry", R.mipmap.img4);
+        fruitsList.add(cherry);
+        Fruit mango = new Fruit("Mango", R.mipmap.img5);
+        fruitsList.add(mango);
+    }
+}
+其中我们需要重点关注的是前半部分，后面基本上都是重复的工作了：
+
+``` stylus
+   protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        initFruits();
+        FruitAdapter adapter=new FruitAdapter(MainActivity.this,R.layout.fruit_item,fruitsList);
+        ListView listView= (ListView) findViewById(R.id.list_View);
+        listView.setAdapter(adapter);
+    }
+
+```
+不过前面这一部分感觉好熟悉，原来也跟刚开始的那个基本上是一样的嘛
+
+ 
+  [6]: ./images/1468591623297.jpg ""
+
+
+  [1]: ./images/2016-07-15_184526.png "2016-07-15_184526.png"
+  [2]: ./videos/Video_2016-07-15_194335.wmv
+  [3]: ./images/2016-07-15_194845.png ""
+  [4]: ./images/1468592017524.jpg "1468592017524.jpg"
